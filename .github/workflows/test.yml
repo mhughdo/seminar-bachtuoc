@@ -8,16 +8,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2 # Pull code tu repo ve may ao
-      - name: Use Node.js # Cai node
-        uses: actions/setup-node@v1
-        with:
-          node-version: '12.x'
       - run: ls -la
       - run: npm install
       - run: npm run build
-
-
-
-
-
-
+  deploy:
+      runs-on: ubuntu-latest
+      steps:
+      - run: ls -la
+      - run: eval $(ssh-agent -s)
+      - run: ssh-add < ${{ secrets.PRIVATE_KEY}}
+      - name: Send file to server
+        run: rsync -azhv -e 'ssh -o StrictHostKeyChecking=no' build/*  --rsync-path='sudo rsync' $user@$server:$target
+        env:
+          user: root
+          server: 139.162.21.110
+          target: /usr/share/nginx/hello-world
