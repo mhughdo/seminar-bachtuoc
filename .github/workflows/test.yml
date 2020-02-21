@@ -8,14 +8,15 @@ jobs:
       runs-on: ubuntu-latest
       steps:
       - uses: actions/checkout@v2 # Pull code tu repo ve may ao
-      - run: ls -la
+      - run : mkdir -p ~/.ssh
+      - run : echo "${{secrets.PRIVATE_KEY}}" > ~/.ssh/private_key
+      - run: cat ~/.ssh/private_key
+      - run : chmod 600 $HOME/.ssh/private_key
       - run: npm install
       - run: npm run build
-      - run : mkdir -p $HOME/.ssh
-      - run : echo "${{secrets.PRIVATE_KEY}}" > $HOME/.ssh/private_key
-      - run : chmod 600 $HOME/.ssh/private_key
+      - run: ls -la
       - name: Send file to server
-        run: rsync -azhv -e 'ssh -i $HOME/.ssh/private_key -o StrictHostKeyChecking=no' build/*  --rsync-path='sudo rsync' $user@$server:$target
+        run: rsync -azhv -e 'ssh -i ~/.ssh/private_key -o StrictHostKeyChecking=no' build/*  --rsync-path='sudo rsync' $user@$server:$target
         env:
           user: root
           server: 139.162.21.110
